@@ -14,7 +14,7 @@ Hyper-V / WSL 端口预留管理工具（Windows 10/11）
 
 ## 功能
 
-- 查看当前被系统预留的端口范围
+- 查看当前被系统预留的端口范围 
 - 设置动态端口范围（需重启）
 - 一键修复常用端口（49152-65535，需重启）
 - 端口保护：添加/删除管理员排除（立即生效）
@@ -25,7 +25,7 @@ Hyper-V / WSL 端口预留管理工具（Windows 10/11）
 
 
 
-![](https://github.com/chxcodepro/windows-port-keeper/blob/master/img/SnowShot_2026-02-27_10-04-53.png?raw=true)
+![img](https://github.com/chxcodepro/windows-port-keeper/blob/master/img/SnowShot_2026-02-27_10-04-53.png?raw=true)
 
 
 ## 安装
