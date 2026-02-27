@@ -8,7 +8,7 @@ Hyper-V / WSL 端口预留管理工具（Windows 10/11）
 [![Python](https://img.shields.io/badge/Python-3.8+-yellow?logo=python)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
-</div>
+![](https://github.com/chxcodepro/windows-port-keeper/blob/master/img/SnowShot_2026-02-27_10-04-53.png?raw=true)
 
 
 
@@ -20,6 +20,7 @@ Hyper-V / WSL 端口预留管理工具（Windows 10/11）
 - 端口保护：添加/删除管理员排除（立即生效）
 - Hyper-V / WSL 启用或禁用（需重启）
 - 保存配置到 `config.json`
+
 
 ## 安装
 
