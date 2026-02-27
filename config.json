@@ -1,0 +1,6 @@
+{
+  "dynamic_port_start": 49152,
+  "dynamic_port_count": 16384,
+  "protected_ports": [],
+  "last_random_range": null
+}

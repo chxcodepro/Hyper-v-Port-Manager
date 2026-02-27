@@ -1,0 +1,100 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g., v1.0.0)'
+        required: true
+        default: 'v1.0.0'
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+
+      - name: Build portable exe
+        run: |
+          pyinstaller build.spec --clean
+
+      - name: Install Inno Setup
+        run: |
+          choco install innosetup -y
+
+      - name: Build installer
+        run: |
+          python build_installer.py
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
+        shell: pwsh
+
+      - name: Get version
+        id: get_version
+        run: |
+          if ("${{ github.event.inputs.version }}" -ne "") {
+            echo "VERSION=${{ github.event.inputs.version }}" >> $env:GITHUB_OUTPUT
+          } else {
+            echo "VERSION=${{ github.ref_name }}" >> $env:GITHUB_OUTPUT
+          }
+        shell: pwsh
+
+      - name: Create portable zip package
+        run: |
+          $portableDir = "release/PortManager-Portable-${{ steps.get_version.outputs.VERSION }}"
+          New-Item -ItemType Directory -Path $portableDir -Force | Out-Null
+          Copy-Item "dist/PortManager.exe" "$portableDir/PortManager.exe"
+          Copy-Item "config.json" "$portableDir/config.json"
+          Copy-Item "README.md" "$portableDir/README.md"
+          Compress-Archive -Path "$portableDir/*" -DestinationPath "release/PortManager-Portable-${{ steps.get_version.outputs.VERSION }}.zip" -Force
+        shell: pwsh
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
+        with:
+          tag_name: ${{ steps.get_version.outputs.VERSION }}
+          name: Release ${{ steps.get_version.outputs.VERSION }}
+          body: |
+            ## Windows Port Manager ${{ steps.get_version.outputs.VERSION }}
+
+            ### Downloads
+            - `PortManager-Portable-${{ steps.get_version.outputs.VERSION }}.zip` - 便携版，解压后直接运行
+            - `PortManager_Setup.exe` - 安装版，带开始菜单快捷方式
+
+            ### Quick Start
+            1. Run as Administrator
+            2. Click "One-Click Fix Common Ports"
+            3. Restart your computer
+
+            ### Changelog
+            See [CHANGELOG.md](CHANGELOG.md) for details
+          draft: false
+          prerelease: false
+          files: |
+            release/PortManager-Portable-${{ steps.get_version.outputs.VERSION }}.zip
+            installer_output/PortManager_Setup.exe
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PortManager-${{ steps.get_version.outputs.VERSION }}
+          path: |
+            release/PortManager-Portable-${{ steps.get_version.outputs.VERSION }}.zip
+            installer_output/PortManager_Setup.exe
+          retention-days: 30
